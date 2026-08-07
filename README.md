@@ -98,3 +98,16 @@ Vector/generator logs, running one-off searches, etc).
   `helm upgrade` recreates the pod with a fresh in-memory session store, so requiring login would
   mean re-authenticating after every dashboard change — fine for a POC, not something to carry
   into a real deployment.
+
+## Why S3 (not local disk)
+
+Object storage isn't incidental here — it's how Quickwit is designed to run. Its indexer,
+searcher, metastore, and control-plane are separate, stateless pods that all need to see the same
+index data; object storage (S3 or an S3-compatible store) is what lets them share it without a
+shared filesystem. Local disk only really works for a single-node setup, which is why this POC
+runs MinIO instead of using `emptyDir`/`hostPath` for Quickwit's data.
+
+Moving from this POC to real AWS S3 is mostly a config swap, not an architecture change: point
+`helm/quickwit-values.yaml`'s `config.storage.s3` block (and `default_index_root_uri`) at a real
+bucket and credentials instead of MinIO, and drop the `flavor: minio` line. Everything else —
+the index mapping, Vector pipeline, Grafana dashboard — stays the same.
