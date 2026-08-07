@@ -1,0 +1,46 @@
+config:
+  version: 0.8
+  default_index_root_uri: s3://quickwit-indexes/indexes
+  storage:
+    s3:
+      flavor: minio
+      endpoint: http://minio.observability.svc.cluster.local:9000
+      region: us-east-1
+      access_key_id: minioadmin
+      secret_access_key: minioadmin
+
+environment:
+  - name: QW_METASTORE_URI
+    value: s3://quickwit-indexes/indexes
+
+searcher:
+  replicaCount: 1
+  resources:
+    requests:
+      cpu: 100m
+      memory: 256Mi
+
+indexer:
+  replicaCount: 1
+  resources:
+    requests:
+      cpu: 100m
+      memory: 256Mi
+
+metastore:
+  resources:
+    requests:
+      cpu: 50m
+      memory: 128Mi
+
+control_plane:
+  resources:
+    requests:
+      cpu: 50m
+      memory: 128Mi
+
+janitor:
+  resources:
+    requests:
+      cpu: 50m
+      memory: 128Mi

@@ -1,0 +1,49 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: log-generator
+  namespace: observability
+  labels:
+    app: log-generator
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: log-generator
+  template:
+    metadata:
+      labels:
+        app: log-generator
+    spec:
+      containers:
+        - name: log-generator
+          image: bash:5
+          command: ["bash", "-c"]
+          args:
+            - |
+              i=0
+              levels=(INFO INFO INFO WARN ERROR DEBUG)
+              modules=(com.acme.orders.OrderService com.acme.payments.PaymentGateway com.acme.inventory.StockManager com.acme.auth.AuthFilter com.acme.notify.EmailDispatcher)
+              messages=(
+                "Processing order request for customer %d with %d items, total amount \$%d.99, validated against inventory across 3 warehouses in region eu-west-1"
+                "Payment authorization succeeded for transaction txn-%d using saved card ending in %04d, gateway response time %dms"
+                "Failed to acquire lock on resource lock-%d after %d retries, backing off and rescheduling task for customer %d"
+                "User session %d authenticated via OAuth2 token, scopes=[read,write], refresh token expires in %d seconds, issued %d minutes ago"
+                "Dispatched notification email to customer %d regarding order status change, template=order-shipped, retry count=%d, delay %dms"
+                "Stock level for SKU-%d dropped below threshold of %d units, triggering reorder workflow with priority %d"
+              )
+              hostname=$(hostname)
+              while true; do
+                i=$((i+1))
+                ts=$(date -u +%Y-%m-%dT%H:%M:%SZ)
+                level=${levels[$((RANDOM % ${#levels[@]}))]}
+                module=${modules[$((RANDOM % ${#modules[@]}))]}
+                template=${messages[$((RANDOM % ${#messages[@]}))]}
+                message=$(printf "$template" $((RANDOM % 9000 + 1000)) $((RANDOM % 20 + 1)) $((RANDOM % 500 + 10)))
+                echo "{\"timestamp\":\"$ts\",\"level\":\"$level\",\"module\":\"$module\",\"seq\":$i,\"message\":\"$message (pod $hostname, line $i)\",\"request_id\":\"$RANDOM-$RANDOM\"}"
+                sleep 0.05
+              done
+          resources:
+            requests:
+              cpu: 20m
+              memory: 32Mi

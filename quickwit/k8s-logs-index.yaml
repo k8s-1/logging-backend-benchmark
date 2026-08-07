@@ -1,0 +1,26 @@
+version: 0.8
+index_id: k8s-logs
+doc_mapping:
+  mode: dynamic
+  timestamp_field: timestamp
+  dynamic_mapping:
+    tokenizer: default
+  field_mappings:
+    - name: timestamp
+      type: datetime
+      input_formats:
+        - rfc3339
+        - unix_timestamp
+      fast: true
+    - name: level
+      type: text
+      tokenizer: raw
+      fast: true
+    - name: module
+      type: text
+      tokenizer: raw
+      fast: true
+search_settings:
+  default_search_fields: [message, level, module]
+indexing_settings:
+  commit_timeout_secs: 5
