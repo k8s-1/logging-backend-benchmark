@@ -160,7 +160,7 @@ but two needed more just to survive this benchmark's ingest load without crashin
 </td>
 <td>
 
-- No S3/object storage support — can't decouple compute from storage
+- No S3/object storage support, compute coupled to storage
 - Slower ingest than Quickwit (20k vs 36k docs/s)
 - Youngest project, smallest ecosystem
 
