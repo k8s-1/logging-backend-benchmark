@@ -110,12 +110,6 @@ but two needed more just to survive this benchmark's ingest load without crashin
 - ❌ Needed 4x VictoriaLogs' memory to survive this ingest load
 
 **VictoriaLogs**
-- ✅ Ran the entire benchmark on the smallest budget (512Mi) without crashing
-- ✅ All 5 query types fast and consistent, zero config tuning needed
-- ✅ Simplest ops footprint — single binary, local disk
-- ❌ No S3/object storage support — can't decouple compute from storage
-- ❌ Slower ingest than Quickwit (20k vs 36k docs/s)
-- ❌ Youngest project, smallest ecosystem
 
 <table>
 <tr>
@@ -125,16 +119,16 @@ but two needed more just to survive this benchmark's ingest load without crashin
 <tr>
 <td>
 
-- Easy to use
-- Good documentation
-- Open source
+✅ Ran the entire benchmark on the smallest budget (512Mi) without crashing
+✅ All 5 query types fast and consistent, zero config tuning needed
+✅ Simplest ops footprint — single binary, local disk
 
 </td>
 <td>
 
-- Can be slow
-- Limited customization
-- Requires setup
+❌ No S3/object storage support — can't decouple compute from storage
+❌ Slower ingest than Quickwit (20k vs 36k docs/s)
+❌ Youngest project, smallest ecosystem
 
 </td>
 </tr>
