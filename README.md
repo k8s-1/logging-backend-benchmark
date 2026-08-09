@@ -76,8 +76,12 @@ just bench-report         # reprint last results without rerunning
 
 | Query | Quickwit | VictoriaLogs | Loki |
 |---|---|---|---|
-| match_all | 80 / 92 | 24 / 83 | 1907 / 2283 |
-| term_filter | 49 / 86 | 23 / 71 | 316 / 430 |
-| text_search | 84 / 100 | 300 / 364 | timeout |
-| point_lookup | error (HTTP 500) | 13 / 51 | timeout |
-| time_window | 84 / 92 | 8 / 33 | timeout |
+| match_all | 44 / 84 | 11 / 66 | 107 / 196 |
+| term_filter | 88 / 107 | 20 / 51 | 30 / 88 |
+| text_search | 14 / 85 | 267 / 466 | 12188 / 16507 |
+| point_lookup | error (HTTP 500) | 14 / 45 | 14190 / 16700 |
+| time_window | 81 / 95 | 8 / 25 | 12 / 65 |
+
+Quickwit's `point_lookup` errors (HTTP 500), not fixed yet. Loki's `text_search`/`point_lookup` are
+slow (12–17s) but not errors — full unindexed line scans, expected given `request_id`/message body
+aren't indexed labels.
