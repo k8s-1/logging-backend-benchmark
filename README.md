@@ -37,7 +37,11 @@ flowchart TD
 
 ## Prerequisites
 
-kind, helm, kubectl, just, Docker.
+* kind
+* helm
+* kubectl
+* just
+* Docker
 
 ## Quickstart
 
