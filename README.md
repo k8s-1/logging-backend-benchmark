@@ -42,22 +42,19 @@ kind, helm, kubectl, just, Docker.
 ## Quickstart
 
 ```sh
-just up                  # cluster + all 3 engines + Grafana
+just up                  # create cluster
 just dashboard-grafana   # http://localhost:3000
 just down                # tear down
 ```
 
-`just` with no args lists every recipe.
-
 ## Benchmarking
 
 `logsample/generate.go` generates a synthetic, messy, high-cardinality log corpus.
-`bench/ingest.py` / `bench/query.py` push it into each engine's native API directly (bypassing
-Vector) and time it.
+`bench/ingest.py` / `bench/query.py` push it into each engine's native API directly (bypassing Vector) and time it.
 
 ```sh
-just bench                # generate 200MB, ingest, query, report — one command
-just bench 50GB           # bigger corpus (args: size, then engine)
+just bench                # generate 200MB, ingest, query, report
+just bench 50GB           # bigger corpus
 just bench-report         # reprint last results without rerunning
 ```
 
