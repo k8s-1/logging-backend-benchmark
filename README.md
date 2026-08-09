@@ -76,7 +76,7 @@ just bench-report         # reprint last results without rerunning
 
 **Query latency, p50 / p95 (ms)**
 
-| Query | What it means | Quickwit | VictoriaLogs | Loki |
+| Query | Description | Quickwit | VictoriaLogs | Loki |
 |---|---|---|---|---|
 | match_all | Show me everything, no filter — the simplest possible query | 15 / 84 | 13 / 51 | 10 / 68 |
 | term_filter | Show me only ERROR-level lines — filtering on a field every engine indexes | 16 / 85 | 13 / 35 | 7 / 55 |
