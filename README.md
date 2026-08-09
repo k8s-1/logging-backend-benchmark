@@ -130,7 +130,7 @@ but two needed more just to survive this benchmark's ingest load without crashin
 <td>
 
 - Fastest ingest (36k docs/s)
-- Every field indexed; point_lookup as fast as everything else
+- Every field indexed; point_lookup as fast as everything else, lowest latency for text search
 - True distributed architecture, S3-native, built to scale out
 
 </td>
