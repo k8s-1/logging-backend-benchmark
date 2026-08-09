@@ -1,6 +1,11 @@
 adminUser: admin
 adminPassword: admin
 
+tolerations:
+  - key: node-role.kubernetes.io/control-plane
+    operator: Exists
+    effect: NoSchedule
+
 grafana.ini:
   auth.anonymous:
     enabled: true
@@ -10,6 +15,7 @@ grafana.ini:
 
 plugins:
   - quickwit-quickwit-datasource
+  - victoriametrics-logs-datasource
 
 datasources:
   datasources.yaml:
@@ -26,6 +32,18 @@ datasources:
           timeField: timestamp
           logMessageField: message
           logLevelField: level
+      - name: Loki k8s-logs
+        uid: loki
+        type: loki
+        access: proxy
+        url: http://loki.observability.svc.cluster.local:3100
+        jsonData:
+          maxLines: 1000
+      - name: VictoriaLogs k8s-logs
+        uid: victorialogs
+        type: victoriametrics-logs-datasource
+        access: proxy
+        url: http://victorialogs.observability.svc.cluster.local:9428
 
 dashboardProviders:
   dashboardproviders.yaml:
@@ -40,83 +58,8 @@ dashboardProviders:
         options:
           path: /var/lib/grafana/dashboards/default
 
-dashboards:
-  default:
-    k8s-logs:
-      json: |
-        {
-          "title": "Kubernetes Logs (Quickwit)",
-          "uid": "k8s-logs-quickwit",
-          "schemaVersion": 39,
-          "version": 1,
-          "editable": true,
-          "refresh": "10s",
-          "time": { "from": "now-15m", "to": "now" },
-          "templating": {
-            "list": [
-              {
-                "name": "search",
-                "type": "textbox",
-                "label": "Search",
-                "query": "*",
-                "current": { "text": "*", "value": "*" }
-              },
-              {
-                "name": "Filters",
-                "type": "adhoc",
-                "label": "Filters",
-                "datasource": { "type": "quickwit-quickwit-datasource", "uid": "quickwit-k8s-logs" },
-                "filters": []
-              }
-            ]
-          },
-          "panels": [
-            {
-              "id": 1,
-              "title": "Log volume",
-              "type": "timeseries",
-              "gridPos": { "h": 8, "w": 24, "x": 0, "y": 0 },
-              "datasource": { "type": "quickwit-quickwit-datasource", "uid": "quickwit-k8s-logs" },
-              "targets": [
-                {
-                  "refId": "A",
-                  "datasource": { "type": "quickwit-quickwit-datasource", "uid": "quickwit-k8s-logs" },
-                  "query": "${search:raw}",
-                  "metrics": [{ "id": "1", "type": "count" }],
-                  "bucketAggs": [
-                    {
-                      "id": "2",
-                      "type": "date_histogram",
-                      "field": "timestamp",
-                      "settings": { "interval": "auto" }
-                    }
-                  ]
-                }
-              ]
-            },
-            {
-              "id": 4,
-              "title": "Matching logs",
-              "type": "logs",
-              "gridPos": { "h": 12, "w": 24, "x": 0, "y": 8 },
-              "datasource": { "type": "quickwit-quickwit-datasource", "uid": "quickwit-k8s-logs" },
-              "options": {
-                "wrapLogMessage": true,
-                "prettifyLogMessage": true,
-                "enableLogDetails": true
-              },
-              "targets": [
-                {
-                  "refId": "A",
-                  "datasource": { "type": "quickwit-quickwit-datasource", "uid": "quickwit-k8s-logs" },
-                  "query": "${search:raw}",
-                  "metrics": [{ "id": "1", "type": "logs", "settings": { "limit": "100" } }],
-                  "bucketAggs": []
-                }
-              ]
-            }
-          ]
-        }
+dashboardsConfigMaps:
+  default: grafana-dashboards
 
 service:
   type: ClusterIP

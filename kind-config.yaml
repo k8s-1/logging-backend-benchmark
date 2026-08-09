@@ -3,3 +3,14 @@ apiVersion: kind.x-k8s.io/v1alpha4
 name: quickwit-poc
 nodes:
   - role: control-plane
+  - role: worker
+    kubeadmConfigPatches:
+      - |
+        kind: JoinConfiguration
+        nodeRegistration:
+          kubeletExtraArgs:
+            node-labels: "bench-role=engines"
+          taints:
+            - key: "bench-role"
+              value: "engines"
+              effect: "NoSchedule"

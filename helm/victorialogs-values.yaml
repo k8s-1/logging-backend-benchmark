@@ -1,0 +1,24 @@
+server:
+  fullnameOverride: victorialogs
+
+  retentionPeriod: "30d"
+
+  nodeSelector:
+    bench-role: engines
+
+  tolerations:
+    - key: bench-role
+      operator: Equal
+      value: engines
+      effect: NoSchedule
+
+  persistentVolume:
+    enabled: false
+
+  resources:
+    requests:
+      cpu: 500m
+      memory: 512Mi
+    limits:
+      cpu: 500m
+      memory: 512Mi

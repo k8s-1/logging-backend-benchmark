@@ -13,34 +13,99 @@ environment:
   - name: QW_METASTORE_URI
     value: s3://quickwit-indexes/indexes
 
+# All 5 components pinned to the shared "engines" bench node (see kind-config.yaml). The indexer
+# is the component doing comparable write-path work to Loki/VictoriaLogs' single pod. It started at
+# parity with them (512Mi) and got OOM-killed under real ingest load at both 8 and 3 concurrent
+# bulk-write workers (bench/ingest.py's --workers) -- cutting client concurrency didn't help, so
+# it's not primarily the benchmark harness being bursty. Measured with `kubectl top` (`just
+# metrics-server`) across several rounds: ingest itself peaks around 634Mi-1Gi, but the background
+# merge pipeline (consolidating splits into larger ones) runs for minutes *after* the client-visible
+# writes finish, is CPU-bound (pegs the 500m limit for stretches, which delays flushing and drives
+# memory up further), and produced a brief spike that OOM-killed the pod once each at 1024Mi and
+# 1536Mi -- fast enough that 2-second polling never caught the true peak, only the crash. 2048Mi is
+# a deliberately generous ceiling to stop chasing that spike rather than another marginal bump. The
+# other four components are internal coordination/maintenance processes with no equivalent full pod on
+# the other side to compare against, so they stay at their original
+# proven-working sizes.
+
 searcher:
   replicaCount: 1
+  nodeSelector:
+    bench-role: engines
+  tolerations:
+    - key: bench-role
+      operator: Equal
+      value: engines
+      effect: NoSchedule
   resources:
     requests:
-      cpu: 100m
-      memory: 256Mi
+      cpu: 175m
+      memory: 175Mi
+    limits:
+      cpu: 175m
+      memory: 175Mi
 
 indexer:
   replicaCount: 1
+  nodeSelector:
+    bench-role: engines
+  tolerations:
+    - key: bench-role
+      operator: Equal
+      value: engines
+      effect: NoSchedule
   resources:
     requests:
-      cpu: 100m
-      memory: 256Mi
+      cpu: 500m
+      memory: 2048Mi
+    limits:
+      cpu: 500m
+      memory: 2048Mi
 
 metastore:
+  nodeSelector:
+    bench-role: engines
+  tolerations:
+    - key: bench-role
+      operator: Equal
+      value: engines
+      effect: NoSchedule
   resources:
     requests:
-      cpu: 50m
-      memory: 128Mi
+      cpu: 75m
+      memory: 75Mi
+    limits:
+      cpu: 75m
+      memory: 75Mi
 
 control_plane:
+  nodeSelector:
+    bench-role: engines
+  tolerations:
+    - key: bench-role
+      operator: Equal
+      value: engines
+      effect: NoSchedule
   resources:
     requests:
-      cpu: 50m
-      memory: 128Mi
+      cpu: 40m
+      memory: 45Mi
+    limits:
+      cpu: 40m
+      memory: 45Mi
 
 janitor:
+  nodeSelector:
+    bench-role: engines
+  tolerations:
+    - key: bench-role
+      operator: Equal
+      value: engines
+      effect: NoSchedule
   resources:
     requests:
-      cpu: 50m
-      memory: 128Mi
+      cpu: 35m
+      memory: 42Mi
+    limits:
+      cpu: 35m
+      memory: 42Mi

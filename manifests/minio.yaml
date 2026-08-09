@@ -15,6 +15,10 @@ spec:
       labels:
         app: minio
     spec:
+      tolerations:
+        - key: node-role.kubernetes.io/control-plane
+          operator: Exists
+          effect: NoSchedule
       containers:
         - name: minio
           image: minio/minio:latest
@@ -68,6 +72,10 @@ spec:
   template:
     spec:
       restartPolicy: OnFailure
+      tolerations:
+        - key: node-role.kubernetes.io/control-plane
+          operator: Exists
+          effect: NoSchedule
       containers:
         - name: mc
           image: minio/mc:latest
@@ -79,3 +87,4 @@ spec:
                 sleep 2
               done
               mc mb --ignore-existing local/quickwit-indexes
+              mc mb --ignore-existing local/loki-data

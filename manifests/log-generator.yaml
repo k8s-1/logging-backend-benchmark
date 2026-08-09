@@ -15,6 +15,10 @@ spec:
       labels:
         app: log-generator
     spec:
+      tolerations:
+        - key: node-role.kubernetes.io/control-plane
+          operator: Exists
+          effect: NoSchedule
       containers:
         - name: log-generator
           image: bash:5
