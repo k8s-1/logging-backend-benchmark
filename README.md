@@ -67,6 +67,3 @@ just bench-report         # reprint last results without rerunning
 | text_search | 84 / 100 | 300 / 364 | timeout |
 | point_lookup | error (HTTP 500) | 13 / 51 | timeout |
 | time_window | 84 / 92 | 8 / 33 | timeout |
-
-Quickwit's `point_lookup` and Loki's `text_search`/`point_lookup`/`time_window` errored — not fixed yet.
-
