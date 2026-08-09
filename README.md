@@ -117,3 +117,25 @@ but two needed more just to survive this benchmark's ingest load without crashin
 - ❌ Slower ingest than Quickwit (20k vs 36k docs/s)
 - ❌ Youngest project, smallest ecosystem
 
+<table>
+<tr>
+<th>Pros</th>
+<th>Cons</th>
+</tr>
+<tr>
+<td>
+
+- Easy to use
+- Good documentation
+- Open source
+
+</td>
+<td>
+
+- Can be slow
+- Limited customization
+- Requires setup
+
+</td>
+</tr>
+</table>
