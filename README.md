@@ -96,18 +96,52 @@ but two needed more just to survive this benchmark's ingest load without crashin
 ### Conclusion
 
 **Loki**
+
+<table>
+<tr>
+<th>Pros</th>
+<th>Cons</th>
+</tr>
+<tr>
+<td>
+
 - ✅ Simple single-binary deployment
 - ✅ Fast on indexed-label queries (term_filter, time_window) — competitive with the others
+
+</td>
+<td>
+
 - ❌ By far the worst free-text/point-lookup latency — architectural, it only indexes labels, not log content
 - ❌ Needed 4x VictoriaLogs' memory to survive this ingest load
 - ❌ Needed manual tuning of rate limits and write-ordering to accept this benchmark's load at all
 
+</td>
+</tr>
+</table>
+
 **Quickwit**
+
+<table>
+<tr>
+<th>Pros</th>
+<th>Cons</th>
+</tr>
+<tr>
+<td>
+
 - ✅ Fastest ingest (36k docs/s)
 - ✅ Every field indexed — point_lookup as fast as everything else
 - ✅ True distributed architecture, S3-native, built to scale out
+
+</td>
+<td>
+
 - ❌ Most complex to run — 5 separate processes
 - ❌ Needed 4x VictoriaLogs' memory to survive this ingest load
+
+</td>
+</tr>
+</table>
 
 **VictoriaLogs**
 
@@ -119,16 +153,16 @@ but two needed more just to survive this benchmark's ingest load without crashin
 <tr>
 <td>
 
-✅ Ran the entire benchmark on the smallest budget (512Mi) without crashing
-✅ All 5 query types fast and consistent, zero config tuning needed
-✅ Simplest ops footprint — single binary, local disk
+- ✅ Ran the entire benchmark on the smallest budget (512Mi) without crashing
+- ✅ All 5 query types fast and consistent, zero config tuning needed
+- ✅ Simplest ops footprint — single binary, local disk
 
 </td>
 <td>
 
-❌ No S3/object storage support — can't decouple compute from storage
-❌ Slower ingest than Quickwit (20k vs 36k docs/s)
-❌ Youngest project, smallest ecosystem
+- ❌ No S3/object storage support — can't decouple compute from storage
+- ❌ Slower ingest than Quickwit (20k vs 36k docs/s)
+- ❌ Youngest project, smallest ecosystem
 
 </td>
 </tr>
