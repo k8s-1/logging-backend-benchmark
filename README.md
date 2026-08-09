@@ -84,8 +84,10 @@ just bench-report         # reprint last results without rerunning
 | point_lookup | Find the one log line for a specific request ID — like looking up one order in a warehouse | 16 / 83 | 7 / 26 | 7100 / 7734 |
 | time_window | Same as match_all, but only the last 5 minutes | 82 / 94 | 8 / 27 | 8 / 52 |
 
-**Resource budget was not equal.** Each backend started at the same 500m CPU / 512Mi memory,
-but two needed more just to survive this benchmark's ingest load without crashing:
+**Resource budget was not equal.**
+- Each backend started at the same 500m CPU / 512Mi memory,
+two needed more memory to survive this benchmark's ingest load without crashing
+- Quickwit ran on 5 components (versus Loki/Victorialogs single replica deploy), the indexer was kept equal for comparison, the others were tuned to minimal usage
 
 | Engine | CPU | Memory | Note |
 |---|---|---|---|
