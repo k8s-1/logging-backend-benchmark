@@ -31,7 +31,7 @@ def quickwit_request(base, name, sample_id):
         "match_all": {"query": "*", "max_hits": 20},
         "term_filter": {"query": "level:ERROR", "max_hits": 20},
         "text_search": {"query": "failed", "max_hits": 20},
-        "point_lookup": {"query": f'request_id:"{sample_id}"', "max_hits": 5},
+        "point_lookup": {"query": f'request_id:{sample_id}', "max_hits": 5},
         "time_window": {"query": "*", "max_hits": 20, "start_timestamp": epoch(300), "end_timestamp": epoch(0)},
     }[name]
     return url, params

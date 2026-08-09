@@ -1,10 +1,12 @@
 # quickwit-ingestion
 
-Local Kubernetes POC comparing three log engines side by side: [Quickwit](https://quickwit.io),
-[Loki](https://grafana.com/oss/loki/), and [VictoriaLogs](https://docs.victoriametrics.com/victorialogs/).
+Local Kubernetes POC comparing three log engines side by side:
+- [Quickwit](https://quickwit.io),
+- [Loki](https://grafana.com/oss/loki/)
+- [VictoriaLogs](https://docs.victoriametrics.com/victorialogs/).
+
 One [Vector](https://vector.dev) DaemonSet ships the same logs to all three; each gets a matching
-[Grafana](https://grafana.com) dashboard. Runs in [kind](https://kind.sigs.k8s.io), driven by a
-`justfile`. Not a production reference — ephemeral storage, dev-only credentials, anonymous Grafana.
+[Grafana](https://grafana.com) dashboard.
 
 ## Architecture
 
@@ -62,7 +64,7 @@ just bench 50GB           # bigger corpus
 just bench-report         # reprint last results without rerunning
 ```
 
-### Latest results (500MB corpus)
+### Results (500MB corpus)
 
 **Ingest**
 
@@ -74,14 +76,44 @@ just bench-report         # reprint last results without rerunning
 
 **Query latency, p50 / p95 (ms)**
 
-| Query | Quickwit | VictoriaLogs | Loki |
-|---|---|---|---|
-| match_all | 44 / 84 | 11 / 66 | 107 / 196 |
-| term_filter | 88 / 107 | 20 / 51 | 30 / 88 |
-| text_search | 14 / 85 | 267 / 466 | 12188 / 16507 |
-| point_lookup | error (HTTP 500) | 14 / 45 | 14190 / 16700 |
-| time_window | 81 / 95 | 8 / 25 | 12 / 65 |
+| Query | What it means | Quickwit | VictoriaLogs | Loki |
+|---|---|---|---|---|
+| match_all | Show me everything, no filter — the simplest possible query | 15 / 84 | 13 / 51 | 10 / 68 |
+| term_filter | Show me only ERROR-level lines — filtering on a field every engine indexes | 16 / 85 | 13 / 35 | 7 / 55 |
+| text_search | Free-text search for the word "failed" anywhere in the log message | 15 / 88 | 202 / 293 | 6300 / 6956 |
+| point_lookup | Find the one log line for a specific request ID — like looking up one order in a warehouse | 16 / 83 | 7 / 26 | 7100 / 7734 |
+| time_window | Same as match_all, but only the last 5 minutes | 82 / 94 | 8 / 27 | 8 / 52 |
 
-Quickwit's `point_lookup` errors (HTTP 500), not fixed yet. Loki's `text_search`/`point_lookup` are
-slow (12–17s) but not errors — full unindexed line scans, expected given `request_id`/message body
-aren't indexed labels.
+**Resource budget not equal.** Each backend started at the same 500m CPU / 512Mi memory,
+but two needed more just to survive this benchmark's ingest load without crashing:
+
+| Engine | CPU | Memory | Note |
+|---|---|---|---|
+| VictoriaLogs | 500m | 512Mi | Never needed more |
+| Loki | 500m | 2048Mi | OOM-killed repeatedly at 512Mi |
+| Quickwit | 825m | 2385Mi | 5 pods; only the indexer needed more (2048Mi), rest are small |
+
+### Conclusion
+
+**Quickwit**
+- ✅ Fastest ingest (36k docs/s)
+- ✅ Every field indexed — point_lookup as fast as everything else
+- ✅ True distributed architecture, S3-native, built to scale out
+- ❌ Most complex to run — 5 separate processes
+- ❌ Indexer alone needed 4x VictoriaLogs' whole memory budget to survive this ingest load
+
+**Loki**
+- ✅ Simple single-binary deployment
+- ✅ Fast on indexed-label queries (term_filter, time_window) — competitive with the others
+- ❌ By far the worst free-text/point-lookup latency (6–8s) — architectural, it only indexes labels, not log content
+- ❌ Needed 4x VictoriaLogs' memory to survive this ingest load
+- ❌ Needed manual tuning of rate limits and write-ordering to accept this benchmark's load at all
+
+**VictoriaLogs**
+- ✅ Ran the entire benchmark on the smallest budget (512Mi) without ever crashing
+- ✅ All 5 query types fast and consistent, zero config tuning needed
+- ✅ Simplest ops footprint — single binary, local disk
+- ❌ No S3/object storage support — can't decouple compute from storage
+- ❌ Slower ingest than Quickwit (20k vs 36k docs/s)
+- ❌ Youngest project, smallest ecosystem of the three
+
