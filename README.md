@@ -8,18 +8,31 @@ One [Vector](https://vector.dev) DaemonSet ships the same logs to all three; eac
 
 ## Architecture
 
+**Quickwit**
 ```mermaid
-flowchart LR
-    LG[log-generator] --> V[Vector DaemonSet]
+flowchart TD
+    LG[log-generator] --> V[Vector]
     V -->|Elasticsearch-bulk| QW[Quickwit]
-    V -->|native loki sink| LK[Loki]
-    V -->|Elasticsearch-bulk| VL[VictoriaLogs]
     QW --> M[(MinIO / S3)]
-    LK --> M
+    QW --> G[Grafana]
+```
+
+**Loki**
+```mermaid
+flowchart TD
+    LG[log-generator] --> V[Vector]
+    V -->|native loki sink| LK[Loki]
+    LK --> M[(MinIO / S3)]
+    LK --> G[Grafana]
+```
+
+**VictoriaLogs**
+```mermaid
+flowchart TD
+    LG[log-generator] --> V[Vector]
+    V -->|Elasticsearch-bulk| VL[VictoriaLogs]
     VL --> D[(local disk)]
-    G[Grafana] --> QW
-    G --> LK
-    G --> VL
+    VL --> G[Grafana]
 ```
 
 ## Prerequisites
