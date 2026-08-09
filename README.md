@@ -70,15 +70,3 @@ just bench-report         # reprint last results without rerunning
 
 Quickwit's `point_lookup` and Loki's `text_search`/`point_lookup`/`time_window` errored — not fixed yet.
 
-## Layout
-
-| Path | Purpose |
-|---|---|
-| `kind-config.yaml` | 2-node kind cluster |
-| `manifests/` | namespace, metrics-server, MinIO, log-generator |
-| `helm/*-values.yaml` | Quickwit, Loki, VictoriaLogs, Vector, Grafana |
-| `quickwit/k8s-logs-index.yaml` | Quickwit index definition |
-| `dashboards/render.py` | Generates all 3 Grafana dashboards from one layout |
-| `logsample/generate.go` | Log corpus generator |
-| `bench/` | ingest.py, query.py, report.py, common.py |
-| `justfile` | All operational commands |
