@@ -70,9 +70,9 @@ just bench-report         # reprint last results without rerunning
 
 | Engine | Docs | Size | Time | Docs/s | MB/s | Failed |
 |---|---|---|---|---|---|---|
+| Loki | 1,175,872 | 568.9MB | 109.8s | 10,709 | 5.2 | 61 |
 | Quickwit | 1,297,872 | 574.6MB | 35.6s | 36,408 | 16.1 | 0 |
 | VictoriaLogs | 1,297,872 | 574.6MB | 64.0s | 20,290 | 9.0 | 0 |
-| Loki | 1,175,872 | 568.9MB | 109.8s | 10,709 | 5.2 | 61 |
 
 **Query latency, p50 / p95 (ms)**
 
@@ -95,19 +95,19 @@ but two needed more just to survive this benchmark's ingest load without crashin
 
 ### Conclusion
 
-**Quickwit**
-- ✅ Fastest ingest (36k docs/s)
-- ✅ Every field indexed — point_lookup as fast as everything else
-- ✅ True distributed architecture, S3-native, built to scale out
-- ❌ Most complex to run — 5 separate processes
-- ❌ Needed 4x VictoriaLogs' memory to survive this ingest load
-
 **Loki**
 - ✅ Simple single-binary deployment
 - ✅ Fast on indexed-label queries (term_filter, time_window) — competitive with the others
 - ❌ By far the worst free-text/point-lookup latency — architectural, it only indexes labels, not log content
 - ❌ Needed 4x VictoriaLogs' memory to survive this ingest load
 - ❌ Needed manual tuning of rate limits and write-ordering to accept this benchmark's load at all
+
+**Quickwit**
+- ✅ Fastest ingest (36k docs/s)
+- ✅ Every field indexed — point_lookup as fast as everything else
+- ✅ True distributed architecture, S3-native, built to scale out
+- ❌ Most complex to run — 5 separate processes
+- ❌ Needed 4x VictoriaLogs' memory to survive this ingest load
 
 **VictoriaLogs**
 - ✅ Ran the entire benchmark on the smallest budget (512Mi) without crashing
