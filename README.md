@@ -1,4 +1,4 @@
-# quickwit-ingestion
+# logging-backend-benchmark
 
 Local Kubernetes POC comparing three log engines side by side:
 - [Quickwit](https://quickwit.io),
